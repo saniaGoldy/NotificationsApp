@@ -1,0 +1,50 @@
+package com.example.notificationsapp
+
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+
+class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
+    Worker(context, workerParameters) {
+    private val isShowNotifications: Boolean
+        get() = applicationContext.getSharedPreferences(
+            SHARED_PREFERENCES_NAME,
+            Context.MODE_PRIVATE
+        ).getBoolean(
+            IS_SHOW_NOTIFICATION_PREFERENCE_NAME, false
+        )
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun doWork(): Result {
+        if (isShowNotifications)
+            showNotification()
+        return Result.success()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun showNotification() {
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        val builder = NotificationCompat.Builder(applicationContext, FirstFragment.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_baseline_sentiment_dissatisfied_24)
+            .setContentTitle(applicationContext.getString(R.string.news_title))
+            .setContentText(applicationContext.getString(R.string.news_content))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(applicationContext)) {
+            notify(FirstFragment.NOTIFICATION_ID, builder.build())
+        }
+    }
+}

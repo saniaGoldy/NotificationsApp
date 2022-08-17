@@ -2,23 +2,27 @@ package com.example.notificationsapp
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
+import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.notificationsapp.databinding.FragmentFirstBinding
+import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
+
+const val IS_SHOW_NOTIFICATION_PREFERENCE_NAME = "isShowNotification"
+const val SHARED_PREFERENCES_NAME = "mySharedPref"
+
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
@@ -34,9 +38,17 @@ class FirstFragment : Fragment() {
     ): View {
         createNotificationChannel()
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        binding.startButton.setOnClickListener {
-            showNotification()
+
+        with(binding){
+            startButton.setOnClickListener {
+                setIsShowNotification(true)
+                scheduleTheNotification()
+            }
+            stopButton.setOnClickListener {
+                setIsShowNotification(false)
+            }
         }
+
         return binding.root
     }
 
@@ -45,26 +57,17 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
+    private fun setIsShowNotification(value: Boolean) {
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun showNotification() {
-        val intent = Intent(requireContext(), MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent =
-            PendingIntent.getActivity(requireContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE)
 
-        val builder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sentiment_dissatisfied_24)
-            .setContentTitle(getString(R.string.news_title))
-            .setContentText(getString(R.string.news_content))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
+        sharedPreferences.edit().putBoolean(IS_SHOW_NOTIFICATION_PREFERENCE_NAME, value).apply()
+    }
 
-        with(NotificationManagerCompat.from(requireContext())) {
-            notify(NOTIFICATION_ID, builder.build())
-        }
+    private fun scheduleTheNotification() {
+        val workManager = WorkManager.getInstance(activity?.applicationContext ?: requireContext())
+        val work = PeriodicWorkRequestBuilder<NotificationWorker>(30, TimeUnit.MINUTES).build()
+        workManager.enqueue(work)
     }
 
     private fun createNotificationChannel() {
@@ -85,6 +88,7 @@ class FirstFragment : Fragment() {
     }
 
     companion object {
+
         const val CHANNEL_ID = "666"
         const val NOTIFICATION_ID = 777
     }
