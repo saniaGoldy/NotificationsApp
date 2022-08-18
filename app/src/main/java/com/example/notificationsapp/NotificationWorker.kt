@@ -7,18 +7,16 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 
 class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {
     private val isShowNotifications: Boolean
-        get() = applicationContext.getSharedPreferences(
-            SHARED_PREFERENCES_NAME,
-            Context.MODE_PRIVATE
-        ).getBoolean(
-            IS_SHOW_NOTIFICATION_PREFERENCE_NAME, false
-        )
+        get() = getIsShowNotification(applicationContext)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun doWork(): Result {
@@ -45,6 +43,24 @@ class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
 
         with(NotificationManagerCompat.from(applicationContext)) {
             notify(FirstFragment.NOTIFICATION_ID, builder.build())
+        }
+    }
+
+    companion object{
+
+        fun getIsShowNotification(applicationContext: Context): Boolean {
+            return applicationContext.getSharedPreferences(
+                SHARED_PREFERENCES_NAME,
+                Context.MODE_PRIVATE
+            ).getBoolean(
+                IS_SHOW_NOTIFICATION_PREFERENCE_NAME, false
+            )
+        }
+        fun scheduleTheNotification(applicationContext: Context) {
+            val workManager = WorkManager.getInstance(applicationContext)
+
+            val work = PeriodicWorkRequestBuilder<NotificationWorker>(FirstFragment.repeatInterval, TimeUnit.MINUTES).build()
+            workManager.enqueue(work)
         }
     }
 }

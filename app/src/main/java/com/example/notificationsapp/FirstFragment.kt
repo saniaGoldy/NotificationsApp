@@ -11,10 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.notificationsapp.databinding.FragmentFirstBinding
-import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -42,7 +39,7 @@ class FirstFragment : Fragment() {
         with(binding){
             startButton.setOnClickListener {
                 setIsShowNotification(true)
-                scheduleTheNotification()
+                NotificationWorker.scheduleTheNotification(requireContext().applicationContext)
             }
             stopButton.setOnClickListener {
                 setIsShowNotification(false)
@@ -59,16 +56,11 @@ class FirstFragment : Fragment() {
 
     private fun setIsShowNotification(value: Boolean) {
 
-        val sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE)
+        val sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+            MODE_PRIVATE
+        )
 
         sharedPreferences.edit().putBoolean(IS_SHOW_NOTIFICATION_PREFERENCE_NAME, value).apply()
-    }
-
-    private fun scheduleTheNotification() {
-        val workManager = WorkManager.getInstance(activity?.applicationContext ?: requireContext())
-
-        val work = PeriodicWorkRequestBuilder<NotificationWorker>(repeatInterval, TimeUnit.MINUTES).build()
-        workManager.enqueue(work)
     }
 
     private fun createNotificationChannel() {
