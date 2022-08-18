@@ -66,7 +66,8 @@ class FirstFragment : Fragment() {
 
     private fun scheduleTheNotification() {
         val workManager = WorkManager.getInstance(activity?.applicationContext ?: requireContext())
-        val work = PeriodicWorkRequestBuilder<NotificationWorker>(30, TimeUnit.MINUTES).build()
+
+        val work = PeriodicWorkRequestBuilder<NotificationWorker>(repeatInterval, TimeUnit.MINUTES).build()
         workManager.enqueue(work)
     }
 
@@ -88,7 +89,7 @@ class FirstFragment : Fragment() {
     }
 
     companion object {
-
+        const val repeatInterval: Long = 30
         const val CHANNEL_ID = "666"
         const val NOTIFICATION_ID = 777
     }
