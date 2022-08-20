@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.PeriodicWorkRequestBuilder
@@ -15,23 +14,28 @@ import java.util.concurrent.TimeUnit
 
 class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {
-    private val isShowNotifications: Boolean
-        get() = getIsShowNotification(applicationContext)
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    private val isShowNotifications: Boolean
+        get() = FirstFragmentViewModel.getIsShowNotification(applicationContext)
+
     override fun doWork(): Result {
-        if (isShowNotifications)
+        if (isShowNotifications) {
             showNotification()
+        }
         return Result.success()
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+
     private fun showNotification() {
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent =
-            PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            } else {
+                PendingIntent.getActivity(applicationContext, 0, intent, Intent.FILL_IN_ACTION)
+            }
 
         val builder = NotificationCompat.Builder(applicationContext, FirstFragment.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_baseline_sentiment_dissatisfied_24)
@@ -47,19 +51,12 @@ class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
     }
 
     companion object{
+        private const val repeatInterval: Long = 30
 
-        fun getIsShowNotification(applicationContext: Context): Boolean {
-            return applicationContext.getSharedPreferences(
-                SHARED_PREFERENCES_NAME,
-                Context.MODE_PRIVATE
-            ).getBoolean(
-                IS_SHOW_NOTIFICATION_PREFERENCE_NAME, false
-            )
-        }
         fun scheduleTheNotification(applicationContext: Context) {
             val workManager = WorkManager.getInstance(applicationContext)
 
-            val work = PeriodicWorkRequestBuilder<NotificationWorker>(FirstFragment.repeatInterval, TimeUnit.MINUTES).build()
+            val work = PeriodicWorkRequestBuilder<NotificationWorker>(repeatInterval, TimeUnit.MINUTES).build()
             workManager.enqueue(work)
         }
     }

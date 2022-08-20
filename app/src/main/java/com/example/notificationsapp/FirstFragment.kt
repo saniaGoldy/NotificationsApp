@@ -11,24 +11,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.notificationsapp.databinding.FragmentFirstBinding
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 
-const val IS_SHOW_NOTIFICATION_PREFERENCE_NAME = "isShowNotification"
-const val SHARED_PREFERENCES_NAME = "mySharedPref"
-
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+    private val viewModel:FirstFragmentViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,11 +33,11 @@ class FirstFragment : Fragment() {
 
         with(binding){
             startButton.setOnClickListener {
-                setIsShowNotification(true)
+                viewModel.setIsShowNotification(true)
                 NotificationWorker.scheduleTheNotification(requireContext().applicationContext)
             }
             stopButton.setOnClickListener {
-                setIsShowNotification(false)
+                viewModel.setIsShowNotification(false)
             }
         }
 
@@ -52,15 +47,6 @@ class FirstFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun setIsShowNotification(value: Boolean) {
-
-        val sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-            MODE_PRIVATE
-        )
-
-        sharedPreferences.edit().putBoolean(IS_SHOW_NOTIFICATION_PREFERENCE_NAME, value).apply()
     }
 
     private fun createNotificationChannel() {
@@ -81,7 +67,6 @@ class FirstFragment : Fragment() {
     }
 
     companion object {
-        const val repeatInterval: Long = 30
         const val CHANNEL_ID = "666"
         const val NOTIFICATION_ID = 777
     }
