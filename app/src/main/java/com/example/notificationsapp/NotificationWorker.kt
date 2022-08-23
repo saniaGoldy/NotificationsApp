@@ -16,12 +16,14 @@ class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {
 
     private val isShowNotifications: Boolean
-        get() = FirstFragmentViewModel.getIsShowNotification(applicationContext)
+        get() = MainRepository.getIsShowNotification(applicationContext)
 
     override fun doWork(): Result {
+
         if (isShowNotifications) {
             showNotification()
         }
+
         return Result.success()
     }
 

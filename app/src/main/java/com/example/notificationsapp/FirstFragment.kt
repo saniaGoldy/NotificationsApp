@@ -33,11 +33,11 @@ class FirstFragment : Fragment() {
 
         with(binding){
             startButton.setOnClickListener {
-                viewModel.setIsShowNotification(true)
+                viewModel.isShowNotification = true
                 NotificationWorker.scheduleTheNotification(requireContext().applicationContext)
             }
             stopButton.setOnClickListener {
-                viewModel.setIsShowNotification(false)
+                viewModel.isShowNotification = false
             }
         }
 

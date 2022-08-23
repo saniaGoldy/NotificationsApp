@@ -11,11 +11,10 @@ import androidx.work.impl.utils.ForceStopRunnable
 class BootCompleteReceiver : ForceStopRunnable.BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if ((intent != null
-                    && (intent.action != null || intent.action.equals("android.intent.action.BOOT_COMPLETED")))
-            && FirstFragmentViewModel.getIsShowNotification(context)
+        if ((intent?.action != null || intent?.action.equals("android.intent.action.BOOT_COMPLETED"))
+            && MainRepository.getIsShowNotification(context)
         ) {
-            Log.d("MyApp", "onReceive: ${intent.action}")
+            Log.d("MyApp", "onReceive: ${intent?.action}")
             NotificationWorker.scheduleTheNotification(context.applicationContext)
         }
     }

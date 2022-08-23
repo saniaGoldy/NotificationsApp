@@ -5,26 +5,16 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 
 class FirstFragmentViewModel(application: Application): AndroidViewModel(application) {
-    fun setIsShowNotification(value: Boolean) {
+    private val repository = MainRepository
 
-        val sharedPreferences = getApplication<Application>().getSharedPreferences(SHARED_PREFERENCES_NAME,
-            Context.MODE_PRIVATE
-        )
-
-        sharedPreferences.edit().putBoolean(IS_SHOW_NOTIFICATION_PREFERENCE_NAME, value).apply()
-    }
-    companion object{
-
-        const val IS_SHOW_NOTIFICATION_PREFERENCE_NAME = "isShowNotification"
-        const val SHARED_PREFERENCES_NAME = "mySharedPref"
-
-        fun getIsShowNotification(context: Context): Boolean {
-            return context.getSharedPreferences(
-                SHARED_PREFERENCES_NAME,
-                Context.MODE_PRIVATE
-            ).getBoolean(
-                IS_SHOW_NOTIFICATION_PREFERENCE_NAME, false
-            )
+    var isShowNotification = false
+        set(value) {
+            field = value
+            repository.setIsShowNotification(value, getApplication<Application>().applicationContext)
         }
+
+    init{
+        isShowNotification = repository.getIsShowNotification(application.applicationContext)
     }
+
 }
