@@ -13,7 +13,7 @@ import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 
 class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
-    Worker(context, workerParameters) {
+        Worker(context, workerParameters) {
 
     private val isShowNotifications: Boolean
         get() = MainRepository.getIsShowNotification(applicationContext)
@@ -33,26 +33,26 @@ class NotificationWorker(context: Context, workerParameters: WorkerParameters) :
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-            } else {
-                PendingIntent.getActivity(applicationContext, 0, intent, Intent.FILL_IN_ACTION)
-            }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                } else {
+                    PendingIntent.getActivity(applicationContext, 0, intent, Intent.FILL_IN_ACTION)
+                }
 
         val builder = NotificationCompat.Builder(applicationContext, FirstFragment.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sentiment_dissatisfied_24)
-            .setContentTitle(applicationContext.getString(R.string.news_title))
-            .setContentText(applicationContext.getString(R.string.news_content))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_baseline_sentiment_dissatisfied_24)
+                .setContentTitle(applicationContext.getString(R.string.news_title))
+                .setContentText(applicationContext.getString(R.string.news_content))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(applicationContext)) {
             notify(FirstFragment.NOTIFICATION_ID, builder.build())
         }
     }
 
-    companion object{
+    companion object {
         private const val repeatInterval: Long = 30
 
         fun scheduleTheNotification(applicationContext: Context) {

@@ -1,10 +1,9 @@
 package com.example.notificationsapp
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 
-class FirstFragmentViewModel(application: Application): AndroidViewModel(application) {
+class FirstFragmentViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MainRepository
 
     var isShowNotification = false
@@ -13,7 +12,7 @@ class FirstFragmentViewModel(application: Application): AndroidViewModel(applica
             repository.setIsShowNotification(value, getApplication<Application>().applicationContext)
         }
 
-    init{
+    init {
         isShowNotification = repository.getIsShowNotification(application.applicationContext)
     }
 

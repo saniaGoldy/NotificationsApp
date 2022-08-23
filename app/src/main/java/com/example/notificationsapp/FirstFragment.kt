@@ -3,13 +3,11 @@ package com.example.notificationsapp
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.notificationsapp.databinding.FragmentFirstBinding
@@ -22,16 +20,16 @@ class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     private val binding get() = _binding!!
-    private val viewModel:FirstFragmentViewModel by viewModels()
+    private val viewModel: FirstFragmentViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         createNotificationChannel()
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
 
-        with(binding){
+        with(binding) {
             startButton.setOnClickListener {
                 viewModel.isShowNotification = true
                 NotificationWorker.scheduleTheNotification(requireContext().applicationContext)
@@ -61,7 +59,7 @@ class FirstFragment : Fragment() {
             }
             // Register the channel with the system
             val notificationManager: NotificationManager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

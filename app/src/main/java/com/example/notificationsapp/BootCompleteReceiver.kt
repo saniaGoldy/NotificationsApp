@@ -12,7 +12,7 @@ class BootCompleteReceiver : ForceStopRunnable.BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if ((intent?.action != null || intent?.action.equals("android.intent.action.BOOT_COMPLETED"))
-            && MainRepository.getIsShowNotification(context)
+                && MainRepository.getIsShowNotification(context)
         ) {
             Log.d("MyApp", "onReceive: ${intent?.action}")
             NotificationWorker.scheduleTheNotification(context.applicationContext)
